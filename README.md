@@ -1,1 +1,1 @@
-#!/usr/bin/env bash
+# TeslaPi: Run a Raspberry Pi in your Tesla!
