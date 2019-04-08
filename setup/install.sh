@@ -111,8 +111,14 @@ install::system() {
 # User Customization
 # ============================================================================
 install::user() {
+    # Copy Dotfiles
     cp -R "$files/user/." "$home/"
 
+    # Set Wallpaper
+    cp "$files/customization/tesla_model_3.jpg" "$home/Pictures/"
+    pcmanfm --set-wallpaper="$home/Pictures/tesla_model_3.jpg"
+
+    # Create empty auth file.
     touch "$home/.authn"
 }
 
