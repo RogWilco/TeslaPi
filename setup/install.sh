@@ -29,7 +29,7 @@ user=$(id -un)
 home=$(realpath ~)
 files="$DIR/files"
 
-linkup() {
+utils::linkup() {
 	if [ $# -lt 2 ]
 	then
 		return 1
@@ -49,6 +49,14 @@ linkup() {
 
 	# Create new symlink.
 	ln -Fs "$target" "$symlink"
+}
+
+utils::setconf() {
+    local file="$1"
+    local key=$(sed -e 's/[\/&]/\\&/g' <<< "$2")
+    local value=$(sed -e 's/[\/&]/\\&/g' <<< "$3")
+
+    sudo sed -i "/^$key=/s/=.*$/=$value/" $file
 }
 
 apt::repository::add() {
@@ -99,7 +107,7 @@ install::system() {
     sudo raspi-config nonint do_vnc 0                       # Enable VNC Server
 
     # Downgrade VNC Server's auth scheme, set password, and restart service.
-    sudo sed -i '/^Authentication/s/=.*$/=VncAuth/' /root/.vnc/config.d/vncserver-x11
+    utils::setconf /root/.vnc/config.d/vncserver-x11 Authentication VncAuth
     sudo vncpasswd -service
     sudo systemctl restart vncserver-x11-serviced.service
 
@@ -115,8 +123,8 @@ install::user() {
     cp -R "$files/user/." "$home/"
 
     # Set Wallpaper
-    cp "$files/customization/tesla_model_3.jpg" "$home/Pictures/"
-    pcmanfm --set-wallpaper="$home/Pictures/tesla_model_3.jpg"
+    sudo cp "$files/customization/tesla_model_3.jpg" "/usr/share/rpd-wallpaper/tesla_model_3.jpg"
+    utils::setconf "$home/.config/pcmanfm/LXDE-pi/desktop-items-0.conf" wallpaper "/usr/share/rpd-wallpaper/tesla_model_3.jpg"
 
     # Create empty auth file.
     touch "$home/.authn"
