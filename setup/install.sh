@@ -74,12 +74,16 @@ install::packages() {
 
     # Install Packages
     local packages=(
+        direnv                      # Direnv
         haveged                     # Entropy Generator (for headless VNC)
         jq                          # Command-line JSON Processor
         zsh                         # Zshell
     )
 
     sudo apt install -y "${packages[@]}"
+
+    # Install OhMyZsh
+	if [ ! -d "$home/.oh-my-zsh" ]; then env git clone --depth=1 https://github.com/robbyrussell/oh-my-zsh.git "$home/.oh-my-zsh"; cp "$files/customization/ubertheme.zsh-theme" "$home/.oh-my-zsh/themes/"; fi
 
     # Install Docker
     install::docker
@@ -107,7 +111,9 @@ install::system() {
 # User Customization
 # ============================================================================
 install::user() {
-    cp -R "$files/"* "$home/"
+    cp -R "$files/user/." "$home/"
+
+    touch "$home/.authn"
 }
 
 # ============================================================================
@@ -119,6 +125,7 @@ install::docker() {
 	sudo apt update -y
 	sudo apt install -y docker-compose
 
+    sudo groupadd docker
 	sudo usermod -aG docker "$USER"
 }
 
