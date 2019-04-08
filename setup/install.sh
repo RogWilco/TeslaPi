@@ -23,8 +23,11 @@ sudo -v
 config_hostname="TeslaPi"
 config_timezone="America/Los_Angeles"
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 user=$(id -un)
 home=$(realpath ~)
+files="$DIR/files"
 
 linkup() {
 	if [ $# -lt 2 ]
@@ -77,6 +80,9 @@ install::packages() {
     )
 
     sudo apt install -y "${packages[@]}"
+
+    # Install Docker
+    install::docker
 }
 
 # ============================================================================
@@ -101,7 +107,7 @@ install::system() {
 # User Customization
 # ============================================================================
 install::user() {
-    echo "Not Implemented"
+    cp -R "$files/"* "$home/"
 }
 
 # ============================================================================
@@ -129,7 +135,6 @@ install::reload() {
 if [[ $# -eq 0 ]]; then
 	install::packages
 	install::system
-	install::docker
 	install::user
 	install::reload
 else
