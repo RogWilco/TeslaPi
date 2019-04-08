@@ -1,0 +1,96 @@
+[user]
+	name = Nick Williams
+	email = git@nickawilliams.com
+	signingkey = 5BE4D4AFAD636A8C
+[color]
+	ui = true
+[core]
+	editor = kate
+	excludesfile = ~/.gitignore_global
+	trustctime = false
+[alias]
+	st = status
+	ci = commit
+	br = branch
+	co = checkout
+	df = diff
+	dc = diff --cached
+	ll = log
+	lg = !"git lg3"
+    lg1 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
+    lg2 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
+    lg3 = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
+	lga = !"git lga1"
+	lga1 = !"git lg1 --all"
+    lga2 = !"git lg2 --all"
+    lga3 = !"git lg3 --all"
+	lol = log --graph --decorate --pretty=oneline --abbrev-commit
+	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+	unstage = reset HEAD --
+	ls = ls-files
+	up = pull --ff
+	cob = checkout -b
+	cobr = !git checkout -b $1 && git push -u origin $1 && :
+	dbr = !git branch -D $1 && git push origin :$1 && :
+	wipe = !git clean -df && git reset --hard HEAD
+	wipeo = !git clean -df && git reset --hard origin && git pull
+
+	# Show files ignored by git:
+	ign = ls-files -o -i --exclude-standard
+
+	# List All Aliases
+	alias = ! git config --get-regexp ^alias\\. | sed -e s/^alias\\.// -e s/\\ /\\ =\\ /
+
+	create-pull-request = !sh -c 'stash pull-request $0 $@'
+
+	# Smartcar
+	smartcar = !git clone git@github.com:smartcar/$1.git
+
+[http]
+	sslVerify = false
+[push]
+	default = simple
+
+[difftool "vscode"]
+	cmd = "code  --wait --diff \"$LOCAL\" \"$REMOTE\""
+[difftool "ksdiff"]
+	cmd = "ksdiff --partial-changeset --relative-path \"$MERGED\" -- \"$LOCAL\" \"$REMOTE\""
+[diff]
+	tool = vscode
+	# tool = ksdiff
+[difftool]
+	prompt = false
+[mergetool "ksdiff"]
+	cmd = "ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot"
+	trustExitCode = true
+[mergetool]
+	prompt = false
+	keepBackup = true
+[merge]
+	tool = vscode
+	# tool = ksdiff
+	# ff = false
+[filter "media"]
+	clean = git-media-clean %f
+	smudge = git-media-smudge %f
+[branch]
+	autosetuprebase = always
+[filter "hawser"]
+	clean = git hawser clean %f
+	smudge = git hawser smudge %f
+	required = true
+[difftool "sourcetree"]
+	cmd = "opendiff \"$LOCAL\" \"$REMOTE\""
+	path =
+[mergetool "vscode"]
+	cmd = code --wait $MERGED
+[mergetool "sourcetree"]
+	cmd = "/Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\""
+	trustExitCode = true
+
+[includeIf "gitdir:~/Projects/Smartcar/"]
+	path = ~/Projects/Smartcar/.gitconfig
+[commit]
+	gpgsign = true
+[rebase]
+	instructionFormat = [%an]		%s
