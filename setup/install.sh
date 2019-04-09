@@ -134,12 +134,18 @@ install::user() {
 # Docker
 # ============================================================================
 install::docker() {
-    sudo bash <(curl -fsSL https://get.docker.com -o get-docker.sh)
+    local docker_install=$(mktemp /tmp/docker-install.XXXXXX)
+
+    curl -fsSL https://get.docker.com > "$docker_install"
+    
+    sudo sh "$docker_install"
+    
+    rm "$docker_install"
 
 	sudo apt update -y
 	sudo apt install -y docker-compose
 
-    sudo groupadd docker
+    # sudo groupadd docker
 	sudo usermod -aG docker "$USER"
 }
 
