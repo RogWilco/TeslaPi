@@ -22,6 +22,7 @@ sudo -v
 # ============================================================================
 config_hostname="TeslaPi"
 config_timezone="America/Los_Angeles"
+config_volname="TESLA_PI"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
@@ -57,6 +58,13 @@ utils::setconf() {
     local value=$(sed -e 's/[\/&]/\\&/g' <<< "$3")
 
     sudo sed -i "/^$key=/s/=.*$/=$value/" $file
+}
+
+utils::setline() {
+	local text="$1"
+	local file="$2"
+
+	sudo sh -c "grep -qxF \"$text\" \"$file\" || echo \"$text\" >> \"$file\""
 }
 
 apt::repository::add() {
@@ -113,6 +121,96 @@ install::system() {
 
     sudo chsh -s "$(which zsh)"                    # Default system shell
 	sudo chsh -s "$(which zsh)" "$user"            # Default user shell
+
+	# Enable USB
+	install::system::usb "$config_volname"
+
+	# Enable Samba
+	install::system::samba "/mnt/$config_volname"
+
+	# Install Watchdog
+	install::system::watchdog
+}
+
+# ============================================================================
+# System Customization: Enable USB Mass Storage
+# ============================================================================
+install::system::usb() {
+	local usb_label="$1"
+
+	if [[ -z "${usb_label// }" ]]; then
+		echo "Please specify a USB label"
+		return 1;
+	fi
+
+	# Enable USB Driver
+	sudo raspi-config nonint set_config_var dtoverlay dwc2 /boot/config.txt
+	utils::setline "dwc2" "/etc/modules"
+
+	# Create binary container file.
+	sudo dd bs=1M if=/dev/zero of=/piusb.bin count=65536
+
+	# Format container file to FAT32
+	sudo mkdosfs /piusb.bin -F 32 -I -n "$usb_label"
+
+	# Mount container file.
+	sudo mkdir "/mnt/$usb_label"
+
+	# Add to fstab
+	utils::setline "/piusb.bin /mnt/$usb_label vfat users,umask=000 0 2" "/etc/fstab"
+	sudo mount -a
+
+	# Create TeslaCam directory
+	mkdir -p "/mnt/$usb_label/TeslaCam"
+
+	# Enable mass storage device mode
+	sudo modprobe g_mass_storage file=/piusb.bin stall=0 ro=0 removable=1
+}
+
+# ============================================================================
+# System Customization: Enable Samba & Share Path
+# ============================================================================
+install::system::samba() {
+	local share_path="$1"
+
+	sudo apt update
+	sudo apt install -y samba winbind
+
+	if [[ ! -z "${share_path// }" ]]; then
+		sudo sh -c "echo \"[usb]
+browseable = yes
+path = $share_path
+guest ok = yes
+read only = no
+create mask = 777\" >> \"/etc/smb/usb.conf\""
+
+		utils::setline "include = /etc/smb/usb.conf"
+	fi
+
+	sudo systemctl restart smbd.service
+}
+
+# ============================================================================
+# System Customization: Watchdog and USB Share Script
+# ============================================================================
+install::system::watchdog() {
+	sudo pip3 install watchdog
+	sudo cp "$files/usr/local/share/usb_share.py" "/usr/local/share/usb_share.py"
+
+	sudo sh -c "echo \"[Unit]
+Description=USB Share Watchdog
+
+[Service]
+Type=simple
+ExecStart=/usr/local/share/usb_share.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target\" >> \"/etc/systemd/system/usbshare.service\""
+
+	sudo systemctl daemon-reload
+	sudo systemctl enable usbshare.service
+	sudo systemctl start usbshare.service
 }
 
 # ============================================================================
@@ -123,7 +221,7 @@ install::user() {
     cp -R "$files/user/." "$home/"
 
     # Set Wallpaper
-    sudo cp "$files/customization/tesla_model_3.jpg" "/usr/share/rpd-wallpaper/tesla_model_3.jpg"
+    sudo cp "$files/usr/share/rpd-wallpaper/tesla_model_3.jpg" "/usr/share/rpd-wallpaper/tesla_model_3.jpg"
     utils::setconf "$home/.config/pcmanfm/LXDE-pi/desktop-items-0.conf" wallpaper "/usr/share/rpd-wallpaper/tesla_model_3.jpg"
 
     # Create empty auth file.
@@ -139,13 +237,15 @@ install::docker() {
     curl -fsSL https://get.docker.com > "$docker_install"
     
     sudo sh "$docker_install"
-    
+
     rm "$docker_install"
 
 	sudo apt update -y
-	sudo apt install -y docker-compose
+	sudo apt install -y --allow-downgrade \
+        docker-ce=18.06.1~ce~3-0~raspbian \
+        docker-compose
 
-    # sudo groupadd docker
+    sudo groupadd docker
 	sudo usermod -aG docker "$USER"
 }
 
