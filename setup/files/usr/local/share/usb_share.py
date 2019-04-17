@@ -5,11 +5,11 @@ import os
 from watchdog.observers import Observer
 from watchdog.events import *
 
-CMD_MOUNT = "modprobe g_mass_storage file=/piusb.bin stall=0 ro=1"
+CMD_MOUNT = "modprobe g_mass_storage file=/piusb.bin stall=0 ro=0 removable=1"
 CMD_UNMOUNT = "modprobe -r g_mass_storage"
 CMD_SYNC = "sync"
 
-WATCH_PATH = "/mnt/usb_share"
+WATCH_PATH = "/mnt/TESLA_PI"
 ACT_EVENTS = [DirDeletedEvent, DirMovedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent]
 ACT_TIME_OUT = 30
 

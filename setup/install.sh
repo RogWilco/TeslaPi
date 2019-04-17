@@ -185,7 +185,7 @@ guest ok = yes
 read only = no
 create mask = 777\" >> \"/etc/samba/usb.conf\""
 
-		utils::setline "include = /etc/samba/usb.conf"
+		utils::setline "include = /etc/samba/usb.conf" "/etc/samba/smb.conf"
 	fi
 
 	sudo systemctl restart smbd.service
