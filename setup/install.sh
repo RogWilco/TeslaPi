@@ -23,6 +23,7 @@ sudo -v
 config_hostname="TeslaPi"
 config_timezone="America/Los_Angeles"
 config_volname="TESLA_PI"
+config_volsize=65536
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
@@ -148,7 +149,7 @@ install::system::usb() {
 	utils::setline "dwc2" "/etc/modules"
 
 	# Create binary container file.
-	sudo dd bs=1M if=/dev/zero of=/piusb.bin count=65536
+	sudo dd bs=1M if=/dev/zero of=/piusb.bin count=$config_volsize
 
 	# Format container file to FAT32
 	sudo mkdosfs /piusb.bin -F 32 -I -n "$usb_label"
@@ -182,9 +183,9 @@ browseable = yes
 path = $share_path
 guest ok = yes
 read only = no
-create mask = 777\" >> \"/etc/smb/usb.conf\""
+create mask = 777\" >> \"/etc/samba/usb.conf\""
 
-		utils::setline "include = /etc/smb/usb.conf"
+		utils::setline "include = /etc/samba/usb.conf"
 	fi
 
 	sudo systemctl restart smbd.service
