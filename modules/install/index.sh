@@ -55,10 +55,10 @@ utils::linkup() {
 
 utils::setconf() {
     local file="$1"
-    local key=$(sed -e 's/[\/&]/\\&/g' <<< "$2")
-    local value=$(sed -e 's/[\/&]/\\&/g' <<< "$3")
+    local key && key=$(sed -e 's/[\/&]/\\&/g' <<< "$2")
+    local value && value=$(sed -e 's/[\/&]/\\&/g' <<< "$3")
 
-    sudo sed -i "/^$key=/s/=.*$/=$value/" $file
+    sudo sed -i "/^$key=/s/=.*$/=$value/" "$file"
 }
 
 utils::setline() {
@@ -70,13 +70,11 @@ utils::setline() {
 
 apt::repository::add() {
 	for i in "$@"; do
-		grep -h "^deb.*$i" /etc/apt/sources.list.d/* > /dev/null 2>&1
-
-		if [ "$?" -ne 0 ]; then
+		if grep -h "^deb.*$i" /etc/apt/sources.list.d/* > /dev/null 2>&1; then
+			echo "Repository Exists: $i"
+		else
 			echo "Adding Repository: $i"
 			sudo apt-add-repository -y "$i"
-		else
-			echo "Repository Exists: $i"
 		fi
 	done
 }
@@ -120,8 +118,8 @@ install::system() {
     sudo vncpasswd -service
     sudo systemctl restart vncserver-x11-serviced.service
 
-    sudo chsh -s "$(which zsh)"                    # Default system shell
-	sudo chsh -s "$(which zsh)" "$user"            # Default user shell
+    sudo chsh -s "$(command -v zsh)"                    # Default system shell
+	sudo chsh -s "$(command -v zsh)" "$user"            # Default user shell
 
 	# Enable USB
 	install::system::usb "$config_volname"
@@ -177,13 +175,15 @@ install::system::samba() {
 	sudo apt update
 	sudo apt install -y samba winbind
 
-	if [[ ! -z "${share_path// }" ]]; then
-		sudo sh -c "echo \"[usb]
-browseable = yes
-path = $share_path
-guest ok = yes
-read only = no
-create mask = 777\" >> \"/etc/samba/usb.conf\""
+	if [[ -n "${share_path// }" ]]; then
+		cat <<-CONFIG > sudo tee /etc/samba/usb.conf
+			[usb]
+			browseable = yes
+			path = $share_path
+			guest ok = yes
+			read only = no
+			create mask = 777
+		CONFIG
 
 		utils::setline "include = /etc/samba/usb.conf" "/etc/samba/smb.conf"
 	fi
@@ -198,16 +198,18 @@ install::system::watchdog() {
 	sudo pip3 install watchdog
 	sudo cp "$files/usr/local/share/usb_share.py" "/usr/local/share/usb_share.py"
 
-	sudo sh -c "echo \"[Unit]
-Description=USB Share Watchdog
+	cat <<-CONFIG > sudo tee /etc/systemd/system/usbshare.service
+			[Unit]
+			Description=USB Share Watchdog
 
-[Service]
-Type=simple
-ExecStart=/usr/local/share/usb_share.py
-Restart=always
+			[Service]
+			Type=simple
+			ExecStart=/usr/local/share/usb_share.py
+			Restart=always
 
-[Install]
-WantedBy=multi-user.target\" >> \"/etc/systemd/system/usbshare.service\""
+			[Install]
+			WantedBy=multi-user.target
+		CONFIG
 
 	sudo systemctl daemon-reload
 	sudo systemctl enable usbshare.service
@@ -233,7 +235,7 @@ install::user() {
 # Docker
 # ============================================================================
 install::docker() {
-    local docker_install=$(mktemp /tmp/docker-install.XXXXXX)
+    local docker_install && docker_install=$(mktemp /tmp/docker-install.XXXXXX)
 
     curl -fsSL https://get.docker.com > "$docker_install"
     

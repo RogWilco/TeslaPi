@@ -57,7 +57,9 @@ out() {
 		esac
 	done
 
-	local platform="$(platform)"
+	local platform
+
+	platform="$(platform)"
 
 	# Establish Entry Flag
 	if [[ -z "$entryQueued" ]]; then entryQueued=0; fi;
@@ -239,7 +241,7 @@ out() {
 
 	if [[ $flag_j -eq 1 ]]
 		then
-			let "padding = ($margin - ${#line}) - ${#stripped} + 1"
+			(( "padding = ($margin - ${#line}) - ${#stripped} + 1" ))
 
 			padding=$(printf "%${padding}s")
 			formatted="$padding$formatted"
@@ -381,6 +383,10 @@ charfill() {
 			l)
 				side="left"
 				shift
+				;;
+			
+			*)
+				:
 				;;
 		esac
 	done

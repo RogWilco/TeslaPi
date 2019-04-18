@@ -31,7 +31,7 @@ doc() {
 		sed 's/^[[:space:]]//'
 	)
 
-	if [[ ! -z "$result" ]]; then
+	if [[ -n "$result" ]]; then
 		echo "${result//
 /\\n}"
 		return 0
