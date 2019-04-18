@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
+cd "$DIR" || exit 1
+
+DIR_MODULES="${DIR}/modules"
+
+# Imports
+source "${DIR}/lib/out.sh"
+
+out "@ENTRY"
+out "@H1 TeslaPi"
+
+# ============================================================================
+# Process Subcommand/Module
+# ============================================================================
+
+SUBCOMMAND="$1"
+
+if [[ -f "${DIR_MODULES}/${SUBCOMMAND}.sh" ]]; then
+    SUBCOMMAND="${SUBCOMMAND}.sh"
+elif [[ -f "${DIR_MODULES}/${SUBCOMMAND}/index.sh" ]]; then
+    SUBCOMMAND="${SUBCOMMAND}/index.sh"
+else
+    SUBCOMMAND="help.sh"
+fi
+
+shift 1
+source "${DIR_MODULES}/${SUBCOMMAND}"
+
+out "@EXIT"
