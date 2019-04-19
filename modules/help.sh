@@ -6,7 +6,21 @@
 
 source "${DIR}/lib/doc.sh"
 
-all() {
+help::index() {
+	if [[ "$#" -gt 0 && "$1" != "help" ]]; then
+		if [[ -f "$DIR_MODULES/$1.sh" ]]; then
+			help::single "${DIR_MODULES}/$1.sh"
+		elif [[ -f "$DIR_MODULES/$1/index.sh" ]]; then
+			help::single "${DIR_MODULES}/$1/index.sh"
+		else
+			help::all
+		fi
+	else
+		help::all
+	fi
+}
+
+help::all() {
 	out "@H2 Synopsis"
 
 	out "teslapi [command [args...]]"
@@ -47,7 +61,7 @@ all() {
 	done
 }
 
-single() {
+help::single() {
 	sub="$1"
 	subcommand=$(basename "$sub")
 	synopsis=$(doc "$sub" synopsis)
@@ -59,15 +73,3 @@ single() {
 	out "@H2 Descrption"
 	out "$description"
 }
-
-if [[ "$#" -gt 0 && "$1" != "help" ]]; then
-    if [[ -f "$DIR_MODULES/$1.sh" ]]; then
-        single "${DIR_MODULES}/$1.sh"
-    elif [[ -f "$DIR_MODULES/$1/index.sh" ]]; then
-        single "${DIR_MODULES}/$1/index.sh"
-    else
-        all
-    fi
-else
-	all
-fi

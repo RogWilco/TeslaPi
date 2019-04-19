@@ -15,17 +15,19 @@ out "@H1 TeslaPi"
 # Process Subcommand/Module
 # ============================================================================
 
-SUBCOMMAND="$1"
+SUB_COMMAND="$1"
+SUB_FILE="$1"
 
-if [[ -f "${DIR_MODULES}/${SUBCOMMAND}.sh" ]]; then
-    SUBCOMMAND="${SUBCOMMAND}.sh"
-elif [[ -f "${DIR_MODULES}/${SUBCOMMAND}/index.sh" ]]; then
-    SUBCOMMAND="${SUBCOMMAND}/index.sh"
+if [[ -f "${DIR_MODULES}/${SUB_COMMAND}.sh" ]]; then
+    SUB_FILE="${SUB_COMMAND}.sh"
+elif [[ -f "${DIR_MODULES}/${SUB_COMMAND}/index.sh" ]]; then
+    SUB_FILE="${SUB_COMMAND}/index.sh"
 else
-    SUBCOMMAND="help.sh"
+    SUB_FILE="help.sh"
 fi
 
 shift 1
-source "${DIR_MODULES}/${SUBCOMMAND}"
+source "${DIR_MODULES}/${SUB_FILE}"
+eval "${SUB_COMMAND}::index \"$@\""
 
 out "@EXIT"

@@ -46,6 +46,26 @@ apt::repository::add() {
 }
 
 # ============================================================================
+# Execute Tasks
+# ============================================================================
+install::index() {
+	if [[ $# -eq 0 ]]; then
+		install::packages
+		install::system
+		install::user
+		install::reload
+	else
+		for arg in "$@"; do
+			type=$(type -t "install::${arg}")
+
+			if [ -n "${type}" ] && [ "${type}" = "function" ]; then
+				eval "install::${arg}"
+			fi
+		done
+	fi
+}
+
+# ============================================================================
 # Packages
 # ============================================================================
 install::packages() {
@@ -224,21 +244,3 @@ install::docker() {
 install::reload() {
 	source ~/.bash_profile
 }
-
-# ============================================================================
-# Execute Tasks
-# ============================================================================
-if [[ $# -eq 0 ]]; then
-	install::packages
-	install::system
-	install::user
-	install::reload
-else
-	for arg in "$@"; do
-		type=$(type -t "install::${arg}")
-
-		if [ -n "${type}" ] && [ "${type}" = "function" ]; then
-			eval "install::${arg}"
-		fi
-	done
-fi
