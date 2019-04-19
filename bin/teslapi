@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+VERSION="1.0.0"
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 cd "$DIR" || exit 1
 
@@ -8,8 +10,17 @@ DIR_MODULES="${DIR}/modules"
 # Imports
 source "${DIR}/lib/out.sh"
 
+if [[ ! -e "${HOME}/.teslapirc" ]]; then
+	cp "${DIR}/.teslapirc.defaults" "${HOME}/.teslapirc"
+fi
+
+source "${DIR}/.teslapirc.defaults"
+source "${HOME}/.teslapirc"
+
+version_text=$(charfill -l 60 "v$VERSION")
+
 out "@ENTRY"
-out "@H1 TeslaPi"
+out "@H1 TeslaPi ${version_text}"
 
 # ============================================================================
 # Process Subcommand/Module

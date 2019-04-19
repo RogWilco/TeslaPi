@@ -1,0 +1,2 @@
+ROOT_LOG="/var/log/teslapi"
+ROOT_PID="/var/run/teslapi"
