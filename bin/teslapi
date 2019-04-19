@@ -17,7 +17,7 @@ fi
 source "${DIR}/.teslapirc.defaults"
 source "${HOME}/.teslapirc"
 
-version_text=$(charfill -l 60 "v$VERSION")
+version_text=$(charfill -l 70 "v$VERSION")
 
 out "@ENTRY"
 out "@H1 TeslaPi ${version_text}"
@@ -39,6 +39,6 @@ fi
 
 shift 1
 source "${DIR_MODULES}/${SUB_FILE}"
-eval "${SUB_COMMAND}::index" $@
+eval "${SUB_COMMAND}::index" "$@"
 
 out "@EXIT"
