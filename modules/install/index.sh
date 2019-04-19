@@ -15,6 +15,9 @@
 #?   reload         Reloads all services and resources affected by this
 #?                  post-install script.
 
+# Imports
+source "${DIR}/lib/utils.sh"
+
 sudo -v
 
 # ============================================================================
@@ -30,43 +33,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 user=$(id -un)
 home=$(realpath ~)
 files="$DIR/files"
-
-utils::linkup() {
-	if [ $# -lt 2 ]
-	then
-		return 1
-	fi
-
-	local target="$1"
-	local symlink="$2"
-	local directory=''
-
-	directory=$(dirname "$symlink")
-
-	# If linking a directory, delete an existing directory at that location.
-	rm -rf "$symlink"
-
-	# Backfill nonexistent directories in symlink's path.
-	mkdir -p "$directory"
-
-	# Create new symlink.
-	ln -Fs "$target" "$symlink"
-}
-
-utils::setconf() {
-    local file="$1"
-    local key && key=$(sed -e 's/[\/&]/\\&/g' <<< "$2")
-    local value && value=$(sed -e 's/[\/&]/\\&/g' <<< "$3")
-
-    sudo sed -i "/^$key=/s/=.*$/=$value/" "$file"
-}
-
-utils::setline() {
-	local text="$1"
-	local file="$2"
-
-	sudo sh -c "grep -qxF \"$text\" \"$file\" || echo \"$text\" >> \"$file\""
-}
 
 apt::repository::add() {
 	for i in "$@"; do
