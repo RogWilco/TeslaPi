@@ -17,6 +17,7 @@
 
 # Imports
 source "${DIR}/lib/utils.sh"
+source "${DIR}/lib/file.sh"
 
 sudo -v
 
@@ -32,7 +33,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 DIR_BIN="${DIR}/bin"
 
 user=$(id -un)
-home=$(realpath ~)
+home=$(echo ~)
 files="$DIR/files"
 
 apt::repository::add() {
@@ -242,7 +243,7 @@ install::path() {
 		target="${HOME}/.bashrc"
 		fi
 
-		attempt     " - Adding TeslaPi\\bin to your PATH: @GRAY(${target})" "file::append_once \"${target}\" \"export PATH=\\\"${DIR_BIN}:\\\$PATH\\\"\""
+		attempt     " - Adding TeslaPi\bin to your PATH: @GRAY(${target})" "file::append_once \"${target}\" \"export PATH=\\\"${DIR_BIN}:\\\$PATH\\\"\""
 	fi
 }
 
@@ -271,12 +272,15 @@ install::index() {
 		install::user
 		install::reload
 	else
-		for arg in "$@"; do
-			type=$(type -t "install::${arg}")
+		local subcat="$1"
+		local type && type=$(type -t "install::${subcat}")
 
-			if [ -n "${type}" ] && [ "${type}" = "function" ]; then
-				eval "install::${arg}"
-			fi
-		done
+		shift 1			
+
+		if [ -n "${type}" ] && [ "${type}" = "function" ]; then
+			eval "install::${subcat}" "$@"
+		else
+			return 1
+		fi
 	fi
 }
