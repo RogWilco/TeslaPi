@@ -28,6 +28,6 @@ fi
 
 shift 1
 source "${DIR_MODULES}/${SUB_FILE}"
-eval "${SUB_COMMAND}::index \"$@\""
+eval "${SUB_COMMAND}::index" $@
 
 out "@EXIT"
