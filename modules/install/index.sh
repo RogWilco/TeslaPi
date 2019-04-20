@@ -29,8 +29,8 @@ config_timezone="America/Los_Angeles"
 config_volname="TESLA_PI"
 config_volsize=65536
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-DIR_BIN="$( cd "${DIR}/../../bin" >/dev/null 2>&1 && pwd)"
+ROOT_MODULE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+DIR_BIN="${DIR}/bin"
 
 user=$(id -un)
 # shellcheck disable=SC2116
