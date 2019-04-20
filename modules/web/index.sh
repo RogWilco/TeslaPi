@@ -57,5 +57,33 @@ web::stop() {
 }
 
 web::status() {
-	out			"status..."
+	local status;
+	local protocol;
+	local host;
+	local ip_lan;
+	local ip_wan;
+	local port;
+	local url;
+
+	cd "$ROOT_MODULE" || return 1
+
+	protocol=$(node -e "console.log(require('./config').web.protocol)")
+	host=$(node -e "console.log(require('./config').web.host)")
+	ip_lan=$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p' | head -n 1)
+	ip_wan=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
+	port=$(node -e "console.log(require('./config').web.port)")
+	url="${protocol}://${host}"
+
+	if fps "${ROOT_PID}/web.pid"; then
+		status="[ @GREEN(UP) ]"
+	else
+		status="[ @RED(DOWN) ]"
+	fi
+
+	out		" - Service Status:         ${status}"
+	out 	" - Host:                   ${host}"
+	out		" - IP Address (LAN):       ${ip_lan}"
+	out		" - IP Address (WAN):       ${ip_wan}"
+	out		" - Port:                   ${port}"
+	out		" - URL:                    ${url}"
 }
