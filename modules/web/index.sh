@@ -10,6 +10,7 @@
 #?   status     Displays the current state of the web service.
 #?   start      Starts the web service.
 #?   stop       Stops the web service.
+#?   *          All other commands will be sent to `npm run [command]`.
 
 # Imports
 source "${DIR}/lib/utils.sh"
