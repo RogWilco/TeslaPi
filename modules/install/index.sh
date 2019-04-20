@@ -33,6 +33,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 DIR_BIN="$( cd "${DIR}/../../bin" >/dev/null 2>&1 && pwd)"
 
 user=$(id -un)
+# shellcheck disable=SC2116
 home=$(echo ~)
 files="$DIR/files"
 
