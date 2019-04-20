@@ -11,20 +11,35 @@
 #? Available subcommands are:
 #?
 #?   status         Displays status information for the virtual device.
-#?   build          Builds a new virtual device, replacing a preexisting one.
-#?   destroy        Removes any preexisting virtual drives.
+#?   build          Builds a new volume, replacing a preexisting one.
+#?   destroy        Removes any preexisting volumes.
 #?   mount          Mounts an existing container.
 #?   unmount        Unmounts a mounted container.
-#?   repair         Repairs a mounted container that wasn't ejected properly.
-#?   ls             Lists the contents of the container's filesystem.
-#?   sync           Synchronizes the container's contents with the cloud.
+#?   repair         Repairs a mounted volume that wasn't ejected properly.
+#?   ls             Lists the contents of the volume's filesystem.
+#?   sync           Synchronizes the volume's contents with the cloud.
 
 usb::status() {
 	out "status..."
 }
 
 usb::build() {
-	out "build..."
+	local volume_size;
+	local volume_label;
+
+	out	" - Building Volume"
+
+	attempt		"   - Creating container (${volume_size} MB)..." \
+												"sudo dd bs=1M if=/dev/zero of=/piusb.bin count=${volume_size}"
+	attempt		"   - Formatting container..."	"sudo mkdosfs /piusb.bin -F 32 -I -n \"${volume_label}\""
+	attempt		"   - Creating mount point..."	"sudo mkdir \"/mnt/${volume_label}\""
+	attempt		"   - Mounting volume (${volume_label}") \
+												"utils::setline \"/piusb.bin /mnt/${volume_label} vfat users,umask=000 0 2\" \"/etc/fstab\"" \
+												"sudo mount -a"
+	attempt		"   - Creating TeslaCam directory..." \
+												"mkdir -p \"/mnt/${volume_label}/TeslaCam\""
+	attempt		"   - Enabling mass storage device mode..." \
+												"sudo modprobe g_mass_storage file=/piusb.bin stall=0 ro=0 removable=1"
 }
 
 usb::destroy() {
@@ -53,5 +68,19 @@ usb::sync() {
 
 usb::index() {
 	out "@H2 USB Mass Storage"
-	out "index..."
+
+	if [[ $# -eq 0 ]]; then
+		usb::status
+	else
+		local subcommand="$1"
+		local type && type=$(type -t "usb::${subcommand}")
+
+		shift 1			
+
+		if [ -n "${type}" ] && [ "${type}" = "function" ]; then
+			eval "usb::${subcommand}" "$@"
+		else
+			return 1
+		fi
+	fi
 }
