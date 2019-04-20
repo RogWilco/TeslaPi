@@ -34,6 +34,7 @@ if [[ -f "${DIR_MODULES}/${SUB_COMMAND}.sh" ]]; then
 elif [[ -f "${DIR_MODULES}/${SUB_COMMAND}/index.sh" ]]; then
     SUB_FILE="${SUB_COMMAND}/index.sh"
 else
+    SUB_COMMAND="help"
     SUB_FILE="help.sh"
 fi
 
