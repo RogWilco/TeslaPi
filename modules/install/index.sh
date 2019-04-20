@@ -29,7 +29,6 @@ config_timezone="America/Los_Angeles"
 config_volname="TESLA_PI"
 config_volsize=65536
 
-ROOT_MODULE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 DIR_BIN="${DIR}/bin"
 
 user=$(id -un)

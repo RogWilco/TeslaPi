@@ -45,7 +45,7 @@ web::start() {
 	attempt     " - Building"							"cd ${ROOT_MODULE}" \
 														"npm install"
 
-	attempt     " - Starting service..."                "npm run debug < /dev/null &> ${ROOT_LOG}/${service}.log & echo \$! > ${ROOT_PID}/${service}.pid"
+	attempt     " - Starting service..."                "npm run debug < /dev/null &> ${ROOT_LOG}/web.log & echo \$! > ${ROOT_PID}/web.pid"
 }
 
 web::stop() {

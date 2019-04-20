@@ -5,6 +5,7 @@ VERSION="1.0.0"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 cd "$DIR" || exit 1
 
+# shellcheck disable=SC2034
 DIR_BIN="${DIR}/bin"
 DIR_MODULES="${DIR}/modules"
 
