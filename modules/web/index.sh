@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+#?/index        100
 #?/synopsis     web [command]
 #?/summary      manages the TeslaPi web interface
 
@@ -32,8 +33,7 @@ web::index() {
 		if [ -n "${type}" ] && [ "${type}" = "function" ]; then
 			eval "web::${subcat}" "$@"
 		else
-			attempt	" - NPM Task: ${subcat}..."			"cd ${ROOT_MODULE}" \
-														"npm run ${subcat}"
+			attempt	" - NPM Task: ${subcat}..."			"cd ${ROOT_MODULE} && npm run ${subcat}"
 		fi
 	fi
 }
