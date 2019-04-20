@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+#?/index        1
 #?/synopsis     install [subcategory]
 #?/summary      executes post-install tasks for a fresh Raspbian system
 
