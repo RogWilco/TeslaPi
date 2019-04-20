@@ -30,7 +30,7 @@ config_volname="TESLA_PI"
 config_volsize=65536
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-DIR_BIN="${DIR}/bin"
+DIR_BIN="$( cd "${DIR}/../../bin" >/dev/null 2>&1 && pwd)"
 
 user=$(id -un)
 home=$(echo ~)
@@ -236,14 +236,15 @@ install::path() {
 	local target="${1}"
 
 	if [[ ":$PATH:" == *":${DIR_BIN}:"* ]]; then
-		out -n " - TeslaPi/bin/teslapi is already in your \$PATH."
+		out -n " - TeslaPi/bin is already in your \$PATH."
 			out -j "@SKIP"
 	else
 		if [ -z "$target" ]; then
 		target="${HOME}/.bashrc"
 		fi
 
-		attempt     " - Adding TeslaPi\bin to your PATH: @GRAY(${target})" "file::append_once \"${target}\" \"export PATH=\\\"${DIR_BIN}:\\\$PATH\\\"\""
+		attempt     " - Adding TeslaPi/bin to your PATH: @GRAY(${target})" \
+											"file::append_once \"${target}\" \"export PATH=\\\"${DIR_BIN}:\\\$PATH\\\"\""
 	fi
 }
 
