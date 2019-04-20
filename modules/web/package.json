@@ -1,0 +1,23 @@
+{
+  "name": "@teslapi/web",
+  "version": "1.0.0",
+  "description": "A web interface for the TeslaPi utility.",
+  "engines": {
+    "node": ">=10.0.0",
+    "npm": ">=6.0.0"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "mocha"
+  },
+  "author": "Nick Williams",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "express": "^4.16.4",
+    "lodash": "^4.17.11"
+  },
+  "devDependencies": {
+    "log4js": "^4.1.0"
+  }
+}

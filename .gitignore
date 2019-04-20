@@ -6,6 +6,10 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
+# Packages
+node_modules
+bower_components
+
 # Testing/Coverage/Lint
 .dockerignore
 
