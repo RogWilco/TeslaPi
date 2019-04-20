@@ -2,6 +2,7 @@ language: bash
 
 before_script:
   - shopt -s globstar nullglob
+
 script:
   - shellcheck --version
-  - shellcheck -e SC1090 **/*.sh
+  - shellcheck -e SC1090 **/*.sh bin/*
