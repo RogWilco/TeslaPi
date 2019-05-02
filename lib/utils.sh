@@ -127,6 +127,13 @@ utils::setline() {
 	sudo sh -c "grep -qxF \"$text\" \"$file\" || echo \"$text\" >> \"$file\""
 }
 
+utils::rmline() {
+	local text="$1"
+	local file="$2"
+
+	sudo sed -i.bak "/$text/d" "$file"
+}
+
 utils::platform() {
 	local platform="unknown"
 
