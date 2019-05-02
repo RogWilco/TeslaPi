@@ -68,7 +68,15 @@ usb::unmount() {
 }
 
 usb::repair() {
-	out "repair..."
+	local volume_label && volume_label=$(grep "\/piusb.bin" /etc/fstab | grep -Po '\/mnt\/\K[^\s]*')
+
+	out " - Repairing Volume"
+
+	attempt		"   - Disabling mass storage device mode..." \
+												"sudo modprobe -r g_mass_storage"
+	attempt		"   - Repairing filesystem..."	"sudo fsck -fa /mnt/${volume_label}"
+	attempt		"   - Enabling mass storage device mode..." \
+												"sudo modprobe g_mass_storage file=/piusb.bin stall=0 ro=0 removable=1"
 }
 
 usb::ls() {
