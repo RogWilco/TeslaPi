@@ -23,7 +23,40 @@ source "${DIR}/lib/utils.sh"
 source "${DIR}/lib/arg.sh"
 
 usb::status() {
-	out "status..."
+	local volume_label && volume_label=$(grep "\/piusb.bin" /etc/fstab | grep -Po '\/mnt\/\K[^\s]*')
+	local container_path="/piusb.bin"
+	local mount_point="/mnt/${volume_label}"
+	local mass_storage_status
+
+	if lsmod | grep -q ^g_mass_storage; then
+		mass_storage_status="@GREEN(ENABLED)"
+	else
+		mass_storage_status="@RED(DISABLED)"
+	fi
+
+	out	" Volume Label:           $volume_label"
+	out	" Container:              $container_path"
+	out	" Mounted:                $mount_point"
+	out	" USB Mass Storage:       $mass_storage_status"
+
+	out	"@DIV"
+
+	local storage && storage=$(df -H | grep "${mount_point}")
+	local storage_total && storage_total=$(echo "$storage" | sed -E 's/^[^ ]*\s*([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *(.*)$/\1/')
+	local storage_used && storage_used=$(echo "$storage" | sed -E 's/^[^ ]*\s*([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *(.*)$/\2/')
+	local storage_free && storage_free=$(echo "$storage" | sed -E 's/^[^ ]*\s*([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *(.*)$/\3/')
+	local storage_teslacam
+	local storage_teslamusic
+
+	out	" Size:                   $storage_total"
+	out	" Available:              $storage_free"
+	out	" Used:                   $storage_used"
+	
+	if [ -d "$mount_point/TeslaCam" ]; then
+		storage_teslacam=$(du -hs "${mount_point}/TeslaCam" | cut -f 1)
+
+		out	"   TeslaCam:             $storage_teslacam"
+	fi
 }
 
 usb::build() {
@@ -59,14 +92,6 @@ usb::destroy() {
 	attempt		"   - Deleting container..."	"sudo rm /piusb.bin"
 }
 
-usb::mount() {
-	out "mount..."
-}
-
-usb::unmount() {
-	out "unmount..."
-}
-
 usb::repair() {
 	local volume_label && volume_label=$(grep "\/piusb.bin" /etc/fstab | grep -Po '\/mnt\/\K[^\s]*')
 
@@ -77,6 +102,14 @@ usb::repair() {
 	attempt		"   - Repairing filesystem..."	"sudo fsck -fa /mnt/${volume_label}"
 	attempt		"   - Enabling mass storage device mode..." \
 												"sudo modprobe g_mass_storage file=/piusb.bin stall=0 ro=0 removable=1"
+}
+
+usb::mount() {
+	out "mount..."
+}
+
+usb::unmount() {
+	out "unmount..."
 }
 
 usb::ls() {
