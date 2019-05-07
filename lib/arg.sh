@@ -12,10 +12,10 @@ arg::default() {
 	#	- value argument is missing
 	#   - value argument is an empty string
 	#   - value argument is whitespace
-	if [[ $# -lt 2 || -z "$2" ]]; then
+	if [[ $# -lt 2 || -z "${arg_value// /}" ]]; then
 		echo "$arg_default"
+	else
+		# Otherwise, output the value.
+		echo "$arg_value"
 	fi
-
-	# Otherwise, output the value.
-	echo "$arg_value"
 }

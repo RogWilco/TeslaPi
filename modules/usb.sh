@@ -59,9 +59,9 @@ usb::status() {
 	out	"@DIV"
 
 	local storage && storage=$(df -H | grep "${mount_point}")
-	local storage_total && storage_total=$(echo "$storage" | sed -E 's/^[^ ]*\s*([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *(.*)$/\1/' | arg::default "-")
-	local storage_used && storage_used=$(echo "$storage" | sed -E 's/^[^ ]*\s*([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *(.*)$/\2/' | arg::default "-")
-	local storage_free && storage_free=$(echo "$storage" | sed -E 's/^[^ ]*\s*([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *(.*)$/\3/' | arg::default "-")
+	local storage_total && storage_total=$(arg::default "--" "$(echo "$storage" | sed -E 's/^[^ ]*\s*([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *(.*)$/\1/')")
+	local storage_used && storage_used=$(arg::default "--" "$(echo "$storage" | sed -E 's/^[^ ]*\s*([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *(.*)$/\2/')")
+	local storage_free && storage_free=$(arg::default "--" "$(echo "$storage" | sed -E 's/^[^ ]*\s*([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *(.*)$/\3/')")
 	local storage_teslacam
 
 	out	" Size:                   $storage_total"
