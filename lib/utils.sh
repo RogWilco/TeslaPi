@@ -1,10 +1,35 @@
 #!/usr/bin/env bash
 
 attempt() {
+	local nested=0
 	local failed=0
 	local stdinFile
 	local stderrFile
 	local stdoutFile
+
+	if [ ${#FUNCNAME[@]} -gt 2 ]; then
+		for i in ${FUNCNAME[@]}; do
+			if [ "$i" == "${FUNCNAME[0]}" ]; then
+				((++nested))
+			fi
+		done
+	fi
+
+	# If we are a nested "attempt" invocation, just run the commands and exit.
+	if [ $nested -gt 1 ]; then
+		shift
+		
+		for cmd in "$@"; do
+			(eval "$cmd") || ((++failed))
+		done
+
+		if [[ $failed -gt 0 ]]
+			then
+				return 1
+			else
+				return 0
+		fi
+	fi
 
 	stdinFile=$(mktemp -t ".attempt.stdin.XXX")
 	stderrFile=$(mktemp -t ".attempt.stderr.XXX")
@@ -18,12 +43,12 @@ attempt() {
 	if [[ $# -eq 1 ]]
 		then
 			echo "$1" > "$stdinFile"
-			eval "$1" 1>>"$stdoutFile" 2>>"$stderrFile" || ((failed++))
+			eval "$1" 1>>"$stdoutFile" 2>>"$stderrFile" || ((++failed))
 		else
 			for cmd in "$@"
 			do
 				echo "$cmd" > "$stdinFile"
-				(eval "$cmd" 1>>"$stdoutFile" 2>>"$stderrFile" && out -in ".") || ((failed++))
+				(eval "$cmd" 1>>"$stdoutFile" 2>>"$stderrFile" && out -in ".") || ((++failed))
 			done
 	fi
 
