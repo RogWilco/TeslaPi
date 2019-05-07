@@ -63,7 +63,6 @@ usb::status() {
 	local storage_used && storage_used=$(echo "$storage" | sed -E 's/^[^ ]*\s*([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *(.*)$/\2/' | arg::default "-")
 	local storage_free && storage_free=$(echo "$storage" | sed -E 's/^[^ ]*\s*([^ ]*) *([^ ]*) *([^ ]*) *([^ ]*) *(.*)$/\3/' | arg::default "-")
 	local storage_teslacam
-	local storage_teslamusic
 
 	out	" Size:                   $storage_total"
 	out	" Available:              $storage_free"
@@ -118,9 +117,9 @@ usb::build() {
 
 	out	" - Building Volume"
 
-	# attempt		"   - Creating container (${volume_size} MB)..." \
-	# 											"sudo dd bs=1M if=/dev/zero of=/piusb.bin count=${volume_size}"
-	# attempt		"   - Formatting container..."	"sudo mkdosfs /piusb.bin -F 32 -I -n \"${volume_label}\""
+	attempt		"   - Creating container (${volume_size} MB)..." \
+												"sudo dd bs=1M if=/dev/zero of=/piusb.bin count=${volume_size}"
+	attempt		"   - Formatting container..."	"sudo mkdosfs /piusb.bin -F 32 -I -n \"${volume_label}\""
 	attempt		"   - Mounting volume (${volume_label})" \
 												"usb::mount ${volume_label}"
 	attempt		"   - Creating TeslaCam directory..." \
@@ -138,7 +137,7 @@ usb::destroy() {
 												"usb::disable"
 	attempt		"   - Unmounting volume (${volume_label})" \
 												"usb::unmount ${volume_label}"
-	# attempt		"   - Deleting container..."	"sudo rm /piusb.bin"
+	attempt		"   - Deleting container..."	"sudo rm /piusb.bin"
 }
 
 usb::repair() {

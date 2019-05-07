@@ -8,7 +8,7 @@ attempt() {
 	local stdoutFile
 
 	if [ ${#FUNCNAME[@]} -gt 2 ]; then
-		for i in ${FUNCNAME[@]}; do
+		for i in "${FUNCNAME[@]}"; do
 			if [ "$i" == "${FUNCNAME[0]}" ]; then
 				((++nested))
 			fi
