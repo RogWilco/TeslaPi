@@ -318,7 +318,7 @@ get() {
 	shift $((OPTIND-1))
 
 	# If prompt is not verbose, return if variable is already set.
-	if [ $verbose -eq 0 ] && [ ! -z "${!name}" ]
+	if [ $verbose -eq 0 ] && [ -n "${!name}" ]
 		then
 			return 0
 	fi

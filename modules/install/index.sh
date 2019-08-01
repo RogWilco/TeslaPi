@@ -84,7 +84,7 @@ install::docker() {
 											"rm \"$docker_install\"" \
 											"sudo apt update -y" \
 											"sudo apt install -y --allow-downgrade docker-ce=18.06.1~ce~3-0~raspbian"
-	
+
 	attempt			"   - docker-compose"	"sudo apt install -y docker-compose"
 	attempt			"   - create \"docker\" group" \
 											"sudo groupadd docker" \
@@ -100,7 +100,7 @@ install::system() {
 	attempt			"   - Set timezone..."	"sudo raspi-config nonint do_change_timezone \"${config_timezone}\""
 	attempt			"   - Set hostname..."	"sudo raspi-config nonint do_hostname \"${config_hostname}\""
 	attempt			"   - Enable SSH..."	"sudo raspi-config nonint do_ssh 0"
-	
+
 	attempt			"   - Set ZSH as default shell" \
 											"sudo chsh -s \"$(command -v zsh)\"" \
 											"sudo chsh -s \"$(command -v zsh)\" \"$user\""
@@ -211,7 +211,12 @@ install::vnc() {
 # User Customization
 # ============================================================================
 install::user() {
+	local pw='raspberry'
+
 	out				" - User Customization"
+	get pw -l		"     - Password" -pv
+	attempt			"     - Applying password..." \
+											"echo \"$pw\" | passwd --stdin pi"
 
 	attempt			"   - Adding dotfiles..." \
 											"cp -R \"$files/user/.\" \"$home/\""
@@ -224,7 +229,7 @@ install::user() {
 	else
 		skip		"   - OhMyZsh"
 	fi
-	
+
 	attempt			"   - Setting wallpaper" \
 											"sudo cp \"$files/usr/share/rpd-wallpaper/tesla_model_3.jpg\" \"/usr/share/rpd-wallpaper/tesla_model_3.jpg\"" \
 											"utils::setconf \"$home/.config/pcmanfm/LXDE-pi/desktop-items-0.conf\" wallpaper \"/usr/share/rpd-wallpaper/tesla_model_3.jpg\""
@@ -277,7 +282,7 @@ install::index() {
 		local subcat="$1"
 		local type && type=$(type -t "install::${subcat}")
 
-		shift 1			
+		shift 1
 
 		if [ -n "${type}" ] && [ "${type}" = "function" ]; then
 			eval "install::${subcat}" "$@"
