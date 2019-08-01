@@ -287,7 +287,7 @@ get() {
 	if [ $# -gt 1 ]
 		then
 			name="$1"
-			shift "$args"
+			shift
 		else
 			return 1
 	fi
@@ -318,7 +318,7 @@ get() {
 	shift $((OPTIND-1))
 
 	# If prompt is not verbose, return if variable is already set.
-	if [ $verbose -eq 0 ]
+	if [ $verbose -eq 0 ] && [ ! -z "${!name}" ]
 		then
 			return 0
 	fi
@@ -346,7 +346,7 @@ get() {
 			prompt="$label ($default): "
 	fi
 
-	out -p "$prompt"
+	out -n "$prompt"
 
 	if [ $password -eq 0 ]
 		then
@@ -384,7 +384,7 @@ charfill() {
 				side="left"
 				shift
 				;;
-			
+
 			*)
 				:
 				;;
